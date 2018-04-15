@@ -18,7 +18,7 @@
     @include('Employer::header')
 
     <div class="ProjectSearch-content">
-        <div id="project-list" class="JobSearchCard-list">
+        <div id="project-list" class="card JobSearchCard-list">
             @foreach($jobs as $job)
                 <div class="JobSearchCard-item ">
                     <div class="JobSearchCard-item-inner" data-project-card="true">
@@ -40,6 +40,9 @@
                                 @if($job->status=='C')
                                     <a class="giveFeedback" href="/employer/post-feedback/{{$job->job_id}}">Give a
                                         FeedBack</a>
+                                @else
+                                    {{--<a href="javascript:;" class="checkTask">Check All Tasks</a>--}}
+                                    <a href="/employer/check-tasks/{{$job->job_id}}" class="checkTask">Check All Tasks</a>
                                 @endif
                             </div>
 
@@ -61,5 +64,6 @@
         });
     });
 </script>
+
 </body>
 </html>

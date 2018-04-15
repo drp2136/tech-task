@@ -6,6 +6,7 @@ use App\Modules\Employer\Models\Bid;
 use App\Modules\Employer\Models\Feedback;
 use App\Modules\Employer\Models\Jobs;
 use App\Modules\Employer\Models\Notification;
+use App\Modules\Employer\Models\Tasks;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ class EmployerController extends Controller
     {
         Auth::logout();
         Session::forget('employer');
-        return redirect('/login');
+        return redirect('/');
     }
 
     /**
@@ -49,16 +50,8 @@ class EmployerController extends Controller
             'rawQuery' => 'job_by = ?',
             'bindParams' => [Auth::id()]
         ];
-        $select = ['jobs.job_id', 'jobs.job_heading', 'jobs.job_desc', 'jobs.status', 'jobs.amnt_offer', 'jobs.bid_count', 'jobs.created_at'];
+        $select = ['jobs.job_id', 'jobs.job_heading', 'jobs.job_desc', 'jobs.status', 'jobs.amnt_offer', 'jobs.created_at'];
         $jobs = json_decode(json_encode(Jobs::getInstance()->fetchJobs($where, $select), true));
-//        $job_ids = array_column($jobs, 'job_id');
-
-//        // fetch the bids for each jobs..
-//        $where = [
-//            'rawQuery' => 'bid_for_job',
-//            'bindParams' => $job_ids
-//        ];
-//        $bids = json_decode(json_encode(Bid::getInstance()->fetchBid($where), true));
         return view('Employer::myJobs', ['jobs' => $jobs]);
     }
 
@@ -197,7 +190,30 @@ class EmployerController extends Controller
                 return $resp;
                 break;
 
+            case 'changeTaskStatus':
+                $where = [
+                    'rawQuery' => 'task_id = ?',
+                    'bindParams' => [$request['task_id']]
+                ];
+                $update = ['task_status' => $request['task_status']];
+                $updateTask = json_decode(json_encode(Tasks::getInstance()->updateTasks($where, $update)));
+
+                return $updateTask;
+                break;
+
         }
+    }
+
+    public function checkTheTasks($job_id)
+    {
+        $where = [
+            'rawQuery' => 'tasks.for_job_id = ? AND jobs.job_by = ?',
+            'bindParams' => [$job_id, Auth::id()]
+        ];
+        $takenJobs = json_decode(json_encode(Tasks::getInstance()->fetchTasks($where)));
+//        dd($takenJobs);
+
+        return view('Employer::checkTasks', ['takenJobs' => $takenJobs]);
     }
 
     /**

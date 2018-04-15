@@ -46,7 +46,7 @@
                                         <button class="bidJob" data-job_id="{{$job->job_id}}"
                                                 data-amnt_offer="{{$job->amnt_offer}}">BID for this Job
                                         </button>
-                                    @else Already BID
+                                    @else You already BID for this Job.
                                     @endif
 
                                 </div>
@@ -65,17 +65,11 @@
 
 <script>
     $(document).ready(function () {
-        let count = 0;
         $(document).on('click', '.bidJob', function () {
-            if (count === 0) {
-                let job_id = $(this).attr('data-job_id');
-                $(this).after('<span class="bidAmount"> BId Amount: <input type="text" class="myBidAmount"><button data-job_id="' + job_id + '" class="bidThisJob">BID</button></span>').hide();
-                count++;
-            } else {
-                $('.bidJob').show();
-                $('.bidAmount').remove();
-                count--;
-            }
+            let job_id = $(this).attr('data-job_id');
+            $('.bidAmount').hide().siblings('.bidJob').show();
+            $(this).after('<span class="bidAmount"> BId Amount: <input type="text" class="myBidAmount"><button data-job_id="' + job_id + '" class="bidThisJob">BID</button><button class="cancelBid">Cancel</button></span>').hide();
+
         });
 
         $(document).on('click', '.bidThisJob', function () {
@@ -103,6 +97,10 @@
             }
         });
 
+        $(document).on('click', '.cancelBid', function () {
+            $(this).parent('.bidAmount').hide().siblings('.bidJob').show();
+
+        });
     });
 </script>
 </body>

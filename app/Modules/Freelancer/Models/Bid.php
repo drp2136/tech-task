@@ -76,4 +76,7 @@ class Bid extends Model
             throw new \Exception("argument not passed.");
         }
     }
+
+
+
 }

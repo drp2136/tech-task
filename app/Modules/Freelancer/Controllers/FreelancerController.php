@@ -6,6 +6,7 @@ use App\Modules\Freelancer\Models\Bid;
 use App\Modules\Freelancer\Models\Feedback;
 use App\Modules\Freelancer\Models\Jobs;
 use App\Modules\Freelancer\Models\Notification;
+use App\Modules\Freelancer\Models\Tasks;
 use App\Modules\Freelancer\Models\Users;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
@@ -85,6 +86,7 @@ class FreelancerController extends Controller
                 }
             }
         } else {
+//            dd(Session::has('freelancer'), 'qqqqqqqqqqqqqqqqqqqqqq77777777777777');
             if (Session::has('freelancer')) {
                 return redirect('/profile');
             } else {
@@ -97,7 +99,7 @@ class FreelancerController extends Controller
     {
         Auth::logout();
         Session::forget('freelancer');
-        return redirect('/login');
+        return redirect('/');
     }
 
     public function register(Request $request)
@@ -146,12 +148,11 @@ class FreelancerController extends Controller
     public function profile(Request $request)
     {
 //        dd('Hello');
-        if ($request->isMethod('post')) {
+//        if ($request->isMethod('post')) {
+//        } else {
 
-        } else {
-
-            return view('Freelancer::profile');
-        }
+        return view('Freelancer::profile');
+//        }
     }
 
     public function jobslisted(Request $request)
@@ -161,7 +162,7 @@ class FreelancerController extends Controller
             'rawQuery' => 'status = ?',
             'bindParams' => ['A']
         ];
-        $select = ['jobs.job_id', 'jobs.job_heading', 'jobs.job_desc', 'jobs.amnt_offer', 'jobs.bid_count', 'jobs.created_at'];
+        $select = ['jobs.job_id', 'jobs.job_heading', 'jobs.job_desc', 'jobs.amnt_offer', 'jobs.created_at'];
         $jobs = Jobs::getInstance()->fetchJobs($where, $select);
 
         $where = [
@@ -215,6 +216,17 @@ class FreelancerController extends Controller
                     return $resp;
                     break;
 
+                case 'changeTaskStatus':
+                    $where = [
+                        'rawQuery' => 'task_id = ?',
+                        'bindParams' => [$request['task_id']]
+                    ];
+                    $update=['task_status'=>$request['task_status']];
+                    $updateTask = json_decode(json_encode(Tasks::getInstance()->updateTasks($where, $update)));
+
+                    return $updateTask;
+                    break;
+
             }
         }
     }
@@ -246,5 +258,29 @@ class FreelancerController extends Controller
         return view('Freelancer::feedback', ['feedback' => $feedback]);
     }
 
+    public function checkProgress()
+    {
+        //fetch and display all the jobs taken and not complete..
+        $where = [
+            'rawQuery' => 'bid.bid_by = ? AND bid.bid_status = ?',
+            'bindParams' => [Auth::id(), 'A']
+        ];
+        $select = ['jobs.job_id', 'jobs.job_heading', 'jobs.job_desc', 'jobs.status', 'bid.bid_id', 'bid.bid_amount', 'bid.bid_status', 'bid.updated_at'];
+        $takenJobs = json_decode(json_encode(Tasks::getInstance()->fetchMyJobs($where, $select)));
+        $takenJobs = array_map("unserialize", array_unique(array_map("serialize", $takenJobs)));
+
+        return view('Freelancer::check_progress', ['takenJobs' => $takenJobs]);
+    }
+
+    public function checkTheTasks($job_id)
+    {
+        $where = [
+            'rawQuery' => 'for_job_id = ?',
+            'bindParams' => [$job_id]
+        ];
+        $takenJobs = json_decode(json_encode(Tasks::getInstance()->fetchTasks($where)));
+
+        return view('Freelancer::checkTasks', ['takenJobs' => $takenJobs]);
+    }
 
 }

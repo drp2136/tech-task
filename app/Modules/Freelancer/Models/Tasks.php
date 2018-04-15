@@ -1,16 +1,23 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Dibyaranjan
+ * Date: 4/15/2018
+ * Time: 12:57 AM
+ */
 
 namespace App\Modules\Freelancer\Models;
+
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class Jobs extends Model
+class Tasks extends Model
 {
     /**
      * @var string
      */
-    protected $table = 'jobs';
+    protected $table = 'tasks';
 
     /**
      * @var null
@@ -18,13 +25,13 @@ class Jobs extends Model
     protected static $_instance = null;
 
     /**
-     * @return Jobs|null
+     * @return Tasks|null
      */
     public static function getInstance()
     {
         if (!is_object(self::$_instance))
             // create an object of same class..
-            self::$_instance = new Jobs();
+            self::$_instance = new Tasks();
         return self::$_instance;
     }
 
@@ -35,7 +42,7 @@ class Jobs extends Model
      * @return array
      * @throws \Exception
      */
-    public function fetchJobs($where, $selectCols = ['*'])
+    public function fetchTasks($where, $selectCols = ['*'])
     {
         if (func_num_args() > 0) { // check no. of arguments passed..
             try {
@@ -54,12 +61,19 @@ class Jobs extends Model
         }
     }
 
+    /**
+     * @param $where
+     * @param array $selectedCols
+     * @return array
+     * @throws \Exception
+     */
     public function fetchMyJobs($where, $selectedCols = ['*'])
     {
         if (func_num_args() > 0) {
             try {
                 return DB::table($this->table)
-                    ->join('bid', 'bid.bid_for_job', '=', $this->table . '.job_id')
+                    ->join('jobs', 'jobs.job_id', '=', $this->table . '.for_job_id')
+                    ->join('bid', 'bid.bid_for_job', '=', 'jobs.job_id')
                     ->whereRaw($where['rawQuery'], isset($where['bindParams']) ? $where['bindParams'] : array())
                     ->select($selectedCols)
                     ->get() ?: [];
@@ -70,5 +84,27 @@ class Jobs extends Model
             throw new \Exception('Argument not passed');
         }
     }
+
+    /**
+     * @param $where
+     * @param $update
+     * @return bool
+     * @throws \Exception
+     */
+    public function updateTasks($where, $update)
+    {
+        if (func_num_args() > 0) {
+            try {
+                return DB::table($this->table)
+                    ->whereRaw($where['rawQuery'], isset($where['bindParams']) ? $where['bindParams'] : array())
+                    ->update($update) ?: false ;
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
+            }
+        } else {
+            throw new \Exception('Argument not passed');
+        }
+    }
+
 
 }
