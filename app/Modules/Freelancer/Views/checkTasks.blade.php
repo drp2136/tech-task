@@ -15,7 +15,7 @@
         </div>
     @endif
 
-    @include('Employer::header')
+    @include('Freelancer::header')
 
     <div class="ProjectSearch-content">
 
