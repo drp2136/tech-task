@@ -15,6 +15,10 @@ Route::group(['module' => 'Employer', 'middleware' => ['web'], 'namespace' => 'A
             // for displaying all task for a job..
             Route::get('/check-tasks/{id}', 'EmployerController@checkTheTasks');
 
+            // for displaying all task for a job..
+            Route::get('/add-a-task/{id}', 'EmployerController@createTask');
+            Route::post('/add-a-task/{id}', 'EmployerController@createTask');
+
             // for displaying all notifications..
             Route::get('/notifications', 'EmployerController@notifications');
 

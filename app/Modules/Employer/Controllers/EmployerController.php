@@ -213,7 +213,7 @@ class EmployerController extends Controller
         $takenJobs = json_decode(json_encode(Tasks::getInstance()->fetchTasks($where)));
 //        dd($takenJobs);
 
-        return view('Employer::checkTasks', ['takenJobs' => $takenJobs]);
+        return view('Employer::checkTasks', ['takenJobs' => $takenJobs, 'job_id'=>$job_id]);
     }
 
     /**
@@ -276,6 +276,52 @@ class EmployerController extends Controller
             }
         } else {
             return view('Employer::feedback');
+        }
+    }
+
+    public function createTask(Request $request, $job_id)
+    {
+        if($request->isMethod('post')){
+            // validation rules for the form inputs..
+            $rules = [
+                'task_name' => 'required',
+                'task_desc' => 'required',
+                'task_type' => 'required',
+            ];
+            // validation custom error messages..
+            $message = [
+                'task_name.required' => 'Please enter task name',
+                'task_desc.required' => 'Please enter task Desciption',
+                'task_type.required' => 'Please enter task type',
+            ];
+            // validate the form input..
+            $validator = Validator::make($request->input(), $rules, $message);
+            if ($validator->fails()) { // if validation failed for any form inputs..
+                return back()->withErrors($validator)->withInput();
+            } else {
+                //get the form-inputs into a variable..
+                $addTask = $request->all();
+//                dd($addTask, $job_id);
+                // remove the _token key-value pair..
+                unset($addTask['_token']);
+                // add other variable for the jobs..
+                $addJob['for_job_id'] = $job_id;
+                $addJob['task_name'] = $request->input('task_name');
+                $addJob['task_desc'] = $request->input('task_desc');
+                $addJob['task_assign_by'] = 'E';
+                $addJob['task_status'] = 'A';
+                $addJob['task_category'] = $request->input('task_type');
+                $addJob['created_at'] = time();
+                $addJob['updated_at'] = time();
+
+//                dd($addJob);
+                // insert new jobs..
+                $resp = Tasks::getInstance()->insertQuery($addJob);
+                if ($resp) return redirect('/employer/check-tasks/'.$job_id)->with(['success' => 'Task added Successfully.']);
+                else return back();
+            }
+        }else{
+            return view('Employer::createTask');
         }
     }
 

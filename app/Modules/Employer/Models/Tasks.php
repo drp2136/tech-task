@@ -108,5 +108,23 @@ class Tasks extends Model
         }
     }
 
+    public function insertQuery($addJob)
+    {
+        if (func_num_args() > 0) { // check no. of arguments passed
+            try {
+                // DB query.
+                $result = DB::table($this->table)
+                    ->insertGetId($addJob);
+
+                return $result ? $result : null;
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
+            }
+        } else {
+            throw new \Exception("argument not passed.");
+        }
+    }
+
+
 
 }

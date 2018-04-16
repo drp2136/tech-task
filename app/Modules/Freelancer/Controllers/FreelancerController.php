@@ -283,4 +283,6 @@ class FreelancerController extends Controller
         return view('Freelancer::checkTasks', ['takenJobs' => $takenJobs]);
     }
 
+
+
 }

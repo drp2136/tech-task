@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>Profile </title>
+    <title>Check Task </title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
@@ -18,6 +18,7 @@
     @include('Employer::header')
 
     <div class="ProjectSearch-content">
+        <div><a href="/employer/add-a-task/{{$job_id}}">Add Task</a></div>
         <div class="card tasks">
             <div class="content table-responsive table-full-width">
                 <table class="table table-striped">
